@@ -6,11 +6,16 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
-const browserlessAPIKey = "487c6b40-dc79-4bdb-9bbe-c5d12064395b" // Replace with your actual API key
-
 func renderHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the Browserless API key from an environment variable
+	browserlessAPIKey := os.Getenv("487c6b40-dc79-4bdb-9bbe-c5d12064395b")
+	if browserlessAPIKey == "" {
+		log.Fatal("BROWSERLESS_API_KEY environment variable is not set")
+	}
+
 	// Get URL parameter from the query string
 	urlToRender := r.URL.Query().Get("url")
 	if urlToRender == "" {
