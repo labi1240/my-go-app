@@ -1,48 +1,33 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
-
-	"github.com/chromedp/chromedp"
+	"net/url"
 )
 
-func renderPage(w http.ResponseWriter, r *http.Request) {
-	// Get URL parameter from the query string
-	urlToRender := r.URL.Query().Get("url")
-	if urlToRender == "" {
-		http.Error(w, "URL parameter is missing", http.StatusBadRequest)
-		return
-	}
-
-	// Create a context with a timeout to avoid hanging requests
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
-
-	// Timeout for the context
-	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
-
-	// Run task list
-	var res string
-	err := chromedp.Run(ctx,
-		chromedp.Navigate(urlToRender),
-		chromedp.Sleep(1*time.Second),    // Wait for JS to render. Adjust time as needed.
-		chromedp.OuterHTML("html", &res), // Capture the outer HTML
-	)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to render the page: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	// Write the result to the response
-	w.Write([]byte(res))
-}
-
 func main() {
-	http.HandleFunc("/render", renderPage)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Set your Browserless API key and the URL to render
+	apiKey := "487c6b40-dc79-4bdb-9bbe-c5d12064395b"
+	targetURL := "https://www.example.com"
+
+	// Construct the Browserless API URL
+	apiURL := "https://chrome.browserless.io/content?token=" + apiKey + "&url=" + url.QueryEscape(targetURL)
+
+	// Make the HTTP request to Browserless
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		log.Fatalf("failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("failed to read response: %v", err)
+	}
+
+	// Output the rendered HTML
+	log.Printf("Rendered HTML: %s", body)
 }
