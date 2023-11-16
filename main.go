@@ -11,7 +11,7 @@ import (
 
 func renderHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the Browserless API key from an environment variable
-	browserlessAPIKey := os.Getenv("487c6b40-dc79-4bdb-9bbe-c5d12064395b")
+	browserlessAPIKey := os.Getenv("BROWSERLESS_API_KEY")
 	if browserlessAPIKey == "" {
 		log.Fatal("BROWSERLESS_API_KEY environment variable is not set")
 	}
